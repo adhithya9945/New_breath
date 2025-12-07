@@ -6,11 +6,11 @@
     <title>Advanced Rhythmic Breathing (1:4:2) 🧘</title>
     <style>
         :root {
-            --bg-color-start: #0f2027; 
-            --bg-color-end: #203a43;   
+            --bg-color-start: #0f2027; /* Dark Teal */
+            --bg-color-end: #203a43;   /* Dark Slate */
             --text-color: #ffffff;
-            --accent-color: #00bcd4; 
-            --circle-color: #80deea; 
+            --accent-color: #00bcd4; /* Cyan/Aqua */
+            --circle-color: #80deea; /* Light Cyan */
             --prepare-color: #ff9800; /* Orange for prep time */
         }
 
@@ -28,7 +28,7 @@
             transition: background 1s ease;
         }
         
-        /* Premium Floating Elements */
+        /* Premium Floating Elements (Visual Polish) */
         .premium-bg-bubble {
             position: absolute;
             width: 150px;
@@ -74,7 +74,7 @@
 
         #status-text {
             position: absolute;
-            font-size: 1.2rem; /* Slightly smaller for multi-line */
+            font-size: 1.2rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -260,7 +260,7 @@
         let isRunning = false;
         let audioCtx;
         let animationFrameId;
-        let currentSoundscapeSource = null; // To hold the loopable background sound
+        let currentSoundscapeSource = null; 
         
         // DOM elements
         const circle = document.getElementById('circle');
@@ -302,32 +302,32 @@
             localStorage.setItem('breathing_settings', JSON.stringify(settings));
         }
         
-        // Listeners to save settings on change
         [prepTimeInput, baseTimeInput, rInInput, rHoldInput, rOutInput, cyclesInput].forEach(input => {
             input.addEventListener('change', saveSettings);
         });
 
         // --- 2. Enhanced Audio Engine (Tones and Soundscapes) ---
         
-        // Stops the continuous background sound
         function stopSoundscape() {
             if (currentSoundscapeSource) {
-                // Fade out the gain smoothly
                 const gainNode = currentSoundscapeSource.gainNode;
                 gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.0); // 1-second fade
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.0); 
 
-                // Stop the source after the fade
                 currentSoundscapeSource.oscillator.stop(audioCtx.currentTime + 1.0);
                 currentSoundscapeSource = null;
             }
         }
 
-        // Starts a continuous loopable background sound
         function startSoundscape(freq, type = 'sine', volume = 0.05) {
-            stopSoundscape(); // Stop previous sound first
+            stopSoundscape(); 
 
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
             
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -339,15 +339,19 @@
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             
-            // Set for continuous loop (requires a long duration)
             osc.start();
             
             currentSoundscapeSource = { oscillator: osc, gainNode: gain };
         }
 
-        // Play short cue/percussion sound (Higher volume than soundscape)
         function playCue(freq = 440, type = 'sine', duration = 0.1, volume = 0.2) {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = type;
@@ -359,10 +363,17 @@
             osc.start();
             osc.stop(audioCtx.currentTime + duration);
         }
-
-        // --- 3. Core Logic & Animation Control ---
         
-        function updateTimer(duration, startTime, totalTime, resolve, color = var--accent-color) {
+        function wait(ms) {
+            return new Promise(resolve => {
+                if (!isRunning) return; 
+                setTimeout(resolve, ms);
+            });
+        }
+
+        // --- 3. Core Logic & Animation Control (FIXES APPLIED) ---
+        
+        function updateTimer(duration, startTime, totalTime, resolve, color) { 
             if (!isRunning) {
                 if (animationFrameId) cancelAnimationFrame(animationFrameId);
                 return;
@@ -371,12 +382,11 @@
             const elapsed = Date.now() - startTime;
             const remaining = Math.max(0, totalTime - elapsed);
             
-            // Display remaining seconds, rounded up
             const seconds = Math.ceil(remaining / 1000); 
             timerText.innerText = seconds; 
             
-            // Adjust timer color based on phase
-            timerText.style.color = color;
+            // Set color using the CSS variable string passed
+            timerText.style.color = color || 'var(--accent-color)';
 
             if (elapsed < totalTime) {
                 animationFrameId = requestAnimationFrame(() => 
@@ -387,10 +397,10 @@
             }
         }
 
-        // Handles the preparatory countdown before the cycles begin
         async function runPrepPhase(prepTime) {
             statusText.innerText = "Prepare to begin...";
-            circle.style.backgroundColor = 'var(--prepare-color)';
+            // Use CSS variables for color consistency
+            circle.style.backgroundColor = 'var(--prepare-color)'; 
             circle.style.boxShadow = `0 0 30px var(--prepare-color)`;
             timerText.style.color = 'var(--prepare-color)';
             
@@ -399,7 +409,6 @@
                 
                 timerText.innerText = t;
                 
-                // Low, deep tone for countdown tick
                 playCue(100, 'square', 0.05); 
                 
                 await wait(1000);
@@ -407,7 +416,6 @@
             
             if (!isRunning) return false;
             
-            // Loud, full tone for start cue (Gong equivalent)
             playCue(250, 'sine', 0.5, 0.4); 
             
             circle.style.backgroundColor = 'var(--circle-color)';
@@ -441,17 +449,17 @@
             for (let i = 0; i < cycles; i++) {
                 if (!isRunning) break;
                 
-                // 1. Inhale
+                // 1. Inhale: Pass color string
                 await performPhase('INHALE', baseTime * rIn, 2.5, 750, 432, i, cycles, 'var(--accent-color)'); 
                 
                 // 2. Hold
                 if (isRunning && rHold > 0) {
-                    await performPhase('HOLD', baseTime * rHold, 2.5, 550, 396, i, cycles, '#ffd700'); // Gold for Hold
+                    await performPhase('HOLD', baseTime * rHold, 2.5, 550, 396, i, cycles, '#ffd700'); 
                 }
 
                 // 3. Exhale
                 if (isRunning) {
-                    await performPhase('EXHALE', baseTime * rOut, 1.0, 350, 285, i, cycles, '#1e88e5'); // Blue for Exhale
+                    await performPhase('EXHALE', baseTime * rOut, 1.0, 350, 285, i, cycles, '#1e88e5'); 
                 }
             }
 
@@ -460,7 +468,7 @@
                 stopSoundscape();
                 statusText.innerText = "Session Complete! ✨";
                 timerText.style.opacity = '0';
-                playCue(800, 'sine', 1.5, 0.5); // Longer finish tone
+                playCue(800, 'sine', 1.5, 0.5); 
                 trackProgress(cycles);
             } else {
                 statusText.innerText = "Stopped";
@@ -476,21 +484,16 @@
                 
                 statusText.innerHTML = `${text}<br/>Cycle ${currentCycle + 1}/${totalCycles}`;
                 
-                // 1. Play percussion cue (e.g., higher pitch for inhale, lower for exhale)
                 playCue(cueFreq, 'triangle', 0.15, 0.25); 
 
-                // 2. Start continuous meditation sound
                 startSoundscape(soundscapeFreq, 'sine', 0.05);
                 
-                // 3. CSS Transition logic
                 circle.style.transition = `transform ${duration}ms linear, box-shadow ${duration}ms ease`;
                 circle.style.transform = `scale(${scale})`;
                 
-                // Add subtle pulsating shadow on INHALE/HOLD
                 const shadowColor = (text === 'INHALE' || text === 'HOLD') ? `rgba(0, 188, 212, 1.0)` : `rgba(0, 188, 212, 0.7)`;
                 circle.style.boxShadow = `0 0 ${scale * 20}px ${shadowColor}`;
 
-                // 4. Start requestAnimationFrame timer
                 const startTime = Date.now();
                 updateTimer(duration, startTime, duration, resolve, timerColor);
             });
@@ -520,13 +523,12 @@
             BTN_START.disabled = active;
             BTN_STOP.disabled = !active;
             
-            // Disable settings input while running
             [prepTimeInput, baseTimeInput, rInInput, rHoldInput, rOutInput, cyclesInput].forEach(input => {
                 input.disabled = active;
             });
         }
 
-        // --- Data Tracking (Same as before) ---
+        // --- 4. Data Tracking (Enhanced Statistics) ---
         function trackProgress(cyclesCompleted) {
             const today = new Date().toISOString().split('T')[0];
             
