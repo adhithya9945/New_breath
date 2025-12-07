@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Rhythmic Breathing (1:4:2) 🧘</title>
+    <style>
+        :root {
+            --bg-color-start: #0f2027; 
+            --bg-color-end: #203a43;   
+            --text-color: #ffffff;
+            --accent-color: #00bcd4; 
+            --circle-color: #80deea; 
+            --prepare-color: #ff9800; /* Orange for prep time */
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-color-start) 0%, var(--bg-color-end) 100%);
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            transition: background 1s ease;
+        }
+        
+        /* Premium Floating Elements */
+        .premium-bg-bubble {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(0, 188, 212, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 20s infinite ease-in-out alternate;
+            filter: blur(50px);
+            z-index: -1;
+        }
+
+        #bubble1 { top: 10%; left: 5%; transform: scale(1.2); }
+        #bubble2 { bottom: 15%; right: 10%; transform: scale(0.8); animation-delay: 5s; }
+        
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-20px) scale(1.1); opacity: 0.5; }
+        }
+        
+        /* The Breathing Circle & Timer */
+        #breathing-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        #circle {
+            width: 100px;
+            height: 100px;
+            background-color: var(--circle-color);
+            border-radius: 50%;
+            opacity: 0.8;
+            transform: scale(1);
+            box-shadow: 0 0 30px rgba(0, 188, 212, 0.7);
+            transition: opacity 0.5s ease;
+        }
+
+        #status-text {
+            position: absolute;
+            font-size: 1.2rem; /* Slightly smaller for multi-line */
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            z-index: 10;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        #timer-text {
+            position: absolute;
+            top: 25px;
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        /* Controls UI */
+        .controls {
+            background: rgba(30, 30, 30, 0.7);
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        label { 
+            font-size: 1rem; 
+            color: #ccc; 
+            font-weight: 300;
+        }
+        
+        input[type="number"] {
+            background: #333;
+            border: 1px solid #555;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            width: 70px;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        input[type="number"]:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #btn-start { background-color: var(--accent-color); color: var(--bg-color-start); }
+        #btn-start:hover { background-color: #4dd0e1; box-shadow: 0 4px 10px rgba(0, 188, 212, 0.5); }
+        
+        #btn-stop { background-color: #ef5350; color: white; }
+        #btn-stop:hover { background-color: #e57373; }
+        
+        button:disabled { 
+            opacity: 0.4; 
+            cursor: not-allowed; 
+            box-shadow: none;
+        }
+
+        #stats-container {
+            margin-top: 25px;
+            border-top: 1px solid #333;
+            padding-top: 15px;
+            text-align: center;
+        }
+        
+        #stats-text {
+            font-size: 0.9rem;
+            color: #aaa;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-top: 3px;
+        }
+        
+        #reset-stats {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            padding: 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="premium-bg-bubble" id="bubble1"></div>
+    <div class="premium-bg-bubble" id="bubble2"></div>
+
+    <div id="breathing-container">
+        <div id="circle"></div>
+        <div id="timer-text"></div>
+        <div id="status-text">Ready</div>
+    </div>
+
+    <div class="controls">
+        <div class="row">
+            <label>Preparatory Time (Sec):</label>
+            <input type="number" id="prep-time" value="5" min="0">
+        </div>
+        <div class="row">
+            <label>Base Unit (Seconds):</label>
+            <input type="number" id="base-time" value="4" min="1">
+        </div>
+        <div class="row">
+            <label>Ratio (Inhale-Hold-Exhale):</label>
+            <div style="display:flex; gap:5px;">
+                <input type="number" id="ratio-in" value="1" min="1">
+                <input type="number" id="ratio-hold" value="4" min="0">
+                <input type="number" id="ratio-out" value="2" min="1">
+            </div>
+        </div>
+        <div class="row">
+            <label>Total Cycles:</label>
+            <input type="number" id="total-cycles" value="5" min="1">
+        </div>
+        
+        <div class="btn-group">
+            <button id="btn-start" onclick="startSession()">START SESSION</button>
+            <button id="btn-stop" onclick="stopSession()" disabled>STOP</button>
+        </div>
+
+        <div id="stats-container">
+            <div id="stats-text">
+                <div class="stat-item">
+                    Today's Total Cycles
+                    <span class="stat-value" id="daily-count">0</span>
+                </div>
+                <div class="stat-item">
+                    Overall Sessions
+                    <span class="stat-value" id="session-count">0</span>
+                </div>
+            </div>
+            <button id="reset-stats" onclick="resetStats()">Reset Statistics</button>
+        </div>
+    </div>
+
+    <script>
+        let isRunning = false;
+        let audioCtx;
+        let animationFrameId;
+        let currentSoundscapeSource = null; // To hold the loopable background sound
+        
+        // DOM elements
+        const circle = document.getElementById('circle');
+        const statusText = document.getElementById('status-text');
+        const timerText = document.getElementById('timer-text');
+        
+        const prepTimeInput = document.getElementById('prep-time');
+        const baseTimeInput = document.getElementById('base-time');
+        const rInInput = document.getElementById('ratio-in');
+        const rHoldInput = document.getElementById('ratio-hold');
+        const rOutInput = document.getElementById('ratio-out');
+        const cyclesInput = document.getElementById('total-cycles');
+        
+        const BTN_START = document.getElementById('btn-start');
+        const BTN_STOP = document.getElementById('btn-stop');
+
+        // --- 1. Persistent Settings ---
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('breathing_settings'));
+            if (settings) {
+                prepTimeInput.value = settings.prepTime || 5;
+                baseTimeInput.value = settings.baseTime || 4;
+                rInInput.value = settings.rIn || 1;
+                rHoldInput.value = settings.rHold || 4;
+                rOutInput.value = settings.rOut || 2;
+                cyclesInput.value = settings.cycles || 5;
+            }
+        }
+
+        function saveSettings() {
+            const settings = {
+                prepTime: parseInt(prepTimeInput.value),
+                baseTime: parseInt(baseTimeInput.value),
+                rIn: parseInt(rInInput.value),
+                rHold: parseInt(rHoldInput.value),
+                rOut: parseInt(rOutInput.value),
+                cycles: parseInt(cyclesInput.value)
+            };
+            localStorage.setItem('breathing_settings', JSON.stringify(settings));
+        }
+        
+        // Listeners to save settings on change
+        [prepTimeInput, baseTimeInput, rInInput, rHoldInput, rOutInput, cyclesInput].forEach(input => {
+            input.addEventListener('change', saveSettings);
+        });
+
+        // --- 2. Enhanced Audio Engine (Tones and Soundscapes) ---
+        
+        // Stops the continuous background sound
+        function stopSoundscape() {
+            if (currentSoundscapeSource) {
+                // Fade out the gain smoothly
+                const gainNode = currentSoundscapeSource.gainNode;
+                gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.0); // 1-second fade
+
+                // Stop the source after the fade
+                currentSoundscapeSource.oscillator.stop(audioCtx.currentTime + 1.0);
+                currentSoundscapeSource = null;
+            }
+        }
+
+        // Starts a continuous loopable background sound
+        function startSoundscape(freq, type = 'sine', volume = 0.05) {
+            stopSoundscape(); // Stop previous sound first
+
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            // Set for continuous loop (requires a long duration)
+            osc.start();
+            
+            currentSoundscapeSource = { oscillator: osc, gainNode: gain };
+        }
+
+        // Play short cue/percussion sound (Higher volume than soundscape)
+        function playCue(freq = 440, type = 'sine', duration = 0.1, volume = 0.2) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // --- 3. Core Logic & Animation Control ---
+        
+        function updateTimer(duration, startTime, totalTime, resolve, color = var--accent-color) {
+            if (!isRunning) {
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                return;
+            }
+
+            const elapsed = Date.now() - startTime;
+            const remaining = Math.max(0, totalTime - elapsed);
+            
+            // Display remaining seconds, rounded up
+            const seconds = Math.ceil(remaining / 1000); 
+            timerText.innerText = seconds; 
+            
+            // Adjust timer color based on phase
+            timerText.style.color = color;
+
+            if (elapsed < totalTime) {
+                animationFrameId = requestAnimationFrame(() => 
+                    updateTimer(duration, startTime, totalTime, resolve, color)
+                );
+            } else {
+                resolve();
+            }
+        }
+
+        // Handles the preparatory countdown before the cycles begin
+        async function runPrepPhase(prepTime) {
+            statusText.innerText = "Prepare to begin...";
+            circle.style.backgroundColor = 'var(--prepare-color)';
+            circle.style.boxShadow = `0 0 30px var(--prepare-color)`;
+            timerText.style.color = 'var(--prepare-color)';
+            
+            for (let t = prepTime; t >= 1; t--) {
+                if (!isRunning) return false;
+                
+                timerText.innerText = t;
+                
+                // Low, deep tone for countdown tick
+                playCue(100, 'square', 0.05); 
+                
+                await wait(1000);
+            }
+            
+            if (!isRunning) return false;
+            
+            // Loud, full tone for start cue (Gong equivalent)
+            playCue(250, 'sine', 0.5, 0.4); 
+            
+            circle.style.backgroundColor = 'var(--circle-color)';
+            return true;
+        }
+
+        async function startSession() {
+            if (isRunning) return;
+            isRunning = true;
+            saveSettings(); 
+            toggleButtons(true);
+            timerText.style.opacity = '1';
+
+            const prepTime = parseInt(prepTimeInput.value);
+            const baseTime = parseInt(baseTimeInput.value) * 1000;
+            const rIn = parseInt(rInInput.value);
+            const rHold = parseInt(rHoldInput.value);
+            const rOut = parseInt(rOutInput.value);
+            const cycles = parseInt(cyclesInput.value);
+
+            // --- RUN PREP PHASE ---
+            if (prepTime > 0) {
+                const ready = await runPrepPhase(prepTime);
+                if (!ready) {
+                    resetUI();
+                    return;
+                }
+            }
+            
+            // --- MAIN CYCLES ---
+            for (let i = 0; i < cycles; i++) {
+                if (!isRunning) break;
+                
+                // 1. Inhale
+                await performPhase('INHALE', baseTime * rIn, 2.5, 750, 432, i, cycles, 'var(--accent-color)'); 
+                
+                // 2. Hold
+                if (isRunning && rHold > 0) {
+                    await performPhase('HOLD', baseTime * rHold, 2.5, 550, 396, i, cycles, '#ffd700'); // Gold for Hold
+                }
+
+                // 3. Exhale
+                if (isRunning) {
+                    await performPhase('EXHALE', baseTime * rOut, 1.0, 350, 285, i, cycles, '#1e88e5'); // Blue for Exhale
+                }
+            }
+
+            // Finish
+            if (isRunning) {
+                stopSoundscape();
+                statusText.innerText = "Session Complete! ✨";
+                timerText.style.opacity = '0';
+                playCue(800, 'sine', 1.5, 0.5); // Longer finish tone
+                trackProgress(cycles);
+            } else {
+                statusText.innerText = "Stopped";
+                stopSoundscape();
+            }
+            
+            resetUI();
+        }
+
+        function performPhase(text, duration, scale, cueFreq, soundscapeFreq, currentCycle, totalCycles, timerColor) {
+            return new Promise(resolve => {
+                if (!isRunning) { resolve(); return; }
+                
+                statusText.innerHTML = `${text}<br/>Cycle ${currentCycle + 1}/${totalCycles}`;
+                
+                // 1. Play percussion cue (e.g., higher pitch for inhale, lower for exhale)
+                playCue(cueFreq, 'triangle', 0.15, 0.25); 
+
+                // 2. Start continuous meditation sound
+                startSoundscape(soundscapeFreq, 'sine', 0.05);
+                
+                // 3. CSS Transition logic
+                circle.style.transition = `transform ${duration}ms linear, box-shadow ${duration}ms ease`;
+                circle.style.transform = `scale(${scale})`;
+                
+                // Add subtle pulsating shadow on INHALE/HOLD
+                const shadowColor = (text === 'INHALE' || text === 'HOLD') ? `rgba(0, 188, 212, 1.0)` : `rgba(0, 188, 212, 0.7)`;
+                circle.style.boxShadow = `0 0 ${scale * 20}px ${shadowColor}`;
+
+                // 4. Start requestAnimationFrame timer
+                const startTime = Date.now();
+                updateTimer(duration, startTime, duration, resolve, timerColor);
+            });
+        }
+
+        function stopSession() {
+            isRunning = false;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            stopSoundscape();
+            resetUI();
+        }
+
+        function resetUI() {
+            isRunning = false;
+            toggleButtons(false);
+            timerText.style.opacity = '0';
+            circle.style.backgroundColor = 'var(--circle-color)';
+            circle.style.transition = 'transform 0.5s ease, box-shadow 0.5s ease';
+            circle.style.transform = 'scale(1)';
+            circle.style.boxShadow = `0 0 30px rgba(0, 188, 212, 0.7)`;
+            if (statusText.innerText !== "Session Complete! ✨") {
+                statusText.innerText = "Ready";
+            }
+        }
+
+        function toggleButtons(active) {
+            BTN_START.disabled = active;
+            BTN_STOP.disabled = !active;
+            
+            // Disable settings input while running
+            [prepTimeInput, baseTimeInput, rInInput, rHoldInput, rOutInput, cyclesInput].forEach(input => {
+                input.disabled = active;
+            });
+        }
+
+        // --- Data Tracking (Same as before) ---
+        function trackProgress(cyclesCompleted) {
+            const today = new Date().toISOString().split('T')[0];
+            
+            let stats = JSON.parse(localStorage.getItem('breathing_stats')) || {
+                daily: {},
+                totalSessions: 0,
+                lastReset: today
+            };
+            
+            if (!stats.daily[today]) stats.daily[today] = 0;
+            stats.daily[today] += cyclesCompleted;
+            
+            stats.totalSessions += 1;
+            
+            localStorage.setItem('breathing_stats', JSON.stringify(stats));
+            updateStatsDisplay();
+        }
+
+        function updateStatsDisplay() {
+            const today = new Date().toISOString().split('T')[0];
+            const stats = JSON.parse(localStorage.getItem('breathing_stats')) || {
+                daily: {},
+                totalSessions: 0
+            };
+            
+            const totalCyclesToday = stats.daily[today] || 0;
+            
+            document.getElementById('daily-count').innerText = totalCyclesToday;
+            document.getElementById('session-count').innerText = stats.totalSessions;
+        }
+        
+        function resetStats() {
+            if (confirm("Are you sure you want to reset all breathing statistics?")) {
+                localStorage.removeItem('breathing_stats');
+                updateStatsDisplay();
+                alert("Statistics reset.");
+            }
+        }
+
+        // --- Initialize ---
+        loadSettings();
+        updateStatsDisplay();
+    </script>
+</body>
+</html>
